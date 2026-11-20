@@ -9,8 +9,8 @@ An endless neon surf game for the browser. Drop in, carve the turns, hop the bar
 | Key | Action |
 | --- | --- |
 | A / D (or ← / →) | Steer |
-| Space | Hop |
-| W / S | Faster / slower |
+| Space / W / ↑ | Hop |
+| S / ↓ | Slow down |
 | Esc | Menu |
 | M | Sound on/off |
 

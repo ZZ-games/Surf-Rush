@@ -244,9 +244,9 @@ kbd { font-family: var(--ui); font-weight: 700; display: inline-grid; place-item
       <button class="btn wide" id="mBox"><kbd>B</kbd> Mystery box <span class="badge gold" id="mBoxBadge" hidden>READY</span></button>
     </div>
     <div class="controls">
-      <span><kbd>A</kbd><kbd>D</kbd> steer</span>
-      <span><kbd>Space</kbd> hop</span>
-      <span><kbd>W</kbd><kbd>S</kbd> faster / slower</span>
+      <span><kbd>A</kbd><kbd>D</kbd><kbd>←</kbd><kbd>→</kbd> steer</span>
+      <span><kbd>Space</kbd><kbd>W</kbd><kbd>↑</kbd> hop</span>
+      <span><kbd>S</kbd> slow down</span>
       <span><kbd>Esc</kbd> menu</span>
       <span><kbd>M</kbd> sound</span>
     </div>
@@ -1496,11 +1496,13 @@ function award(pts, label, cls) {
 }
 
 // ---------- input ----------
-const keyMap = { KeyA: 'left', ArrowLeft: 'left', KeyD: 'right', ArrowRight: 'right', KeyW: 'fwd', ArrowUp: 'fwd', KeyS: 'back', ArrowDown: 'back', Space: 'jump' };
+const keyMap = { KeyA: 'left', ArrowLeft: 'left', KeyD: 'right', ArrowRight: 'right', KeyW: 'jump', ArrowUp: 'jump', Space: 'jump', KeyS: 'back', ArrowDown: 'back' };
+const keysDown = new Set(); // several keys share an action (Space, W, Up all hop)
 window.addEventListener('keydown', (e) => {
   initAudio();
   const k = keyMap[e.code];
-  if (k && (state === 'play' || state === 'count')) { input[k] = true; e.preventDefault(); }
+  if (k && (state === 'play' || state === 'count')) { keysDown.add(e.code); input[k] = true; e.preventDefault(); }
+  if (k && e.code.startsWith('Arrow')) e.preventDefault();
   if (e.code === 'Space') e.preventDefault();
   if (e.repeat) return;
   if (state === 'menu') {
@@ -1524,8 +1526,8 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyM') setMuted(!audio.muted);
 });
-window.addEventListener('keyup', (e) => { const k = keyMap[e.code]; if (k) input[k] = false; });
-window.addEventListener('blur', () => { for (const k in input) input[k] = false; });
+window.addEventListener('keyup', (e) => { const k = keyMap[e.code]; if (!k) return; keysDown.delete(e.code); input[k] = [...keysDown].some(c => keyMap[c] === k); });
+window.addEventListener('blur', () => { keysDown.clear(); for (const k in input) input[k] = false; });
 $('mPlay').addEventListener('click', () => startGame(false));
 $('mLocker').addEventListener('click', showLocker);
 $('mBox').addEventListener('click', () => showBox('menu'));
